@@ -170,7 +170,7 @@ unsigned short line_numScan(Concert table[], unsigned short line_number, char ac
         line[3] = '\0';
         printTable(table, line_number);
         if (flag) // Outputting a message that entered line does not matches the format or greater than all existing lines in the table
-            printf("\n!ERROR! Incorrect format of number or the number was greater than a number of lines existing in this table.\n");
+            printf("\n!ERROR! Incorrect format of number or the number was greater, than a number of lines existing in this table, or not positive.\n");
         if (action == '3') // Checking if the function is running for deleting a line
             printf("\nEnter a number if the line (up to %d) that you would like to delete: ", MAX_LINES);
         if (action == '2') // Checking if the function is running for changing a line
@@ -184,7 +184,7 @@ unsigned short line_numScan(Concert table[], unsigned short line_number, char ac
                 number = ((line[1] - 48) + (line[0] - 48) * 10);
             if ((line[0] < 58 && line[0] > 47) && (line[1] == 0) && (line[2] == 0) && (line[3] == '\0'))
                 number = (line[0] - 48);
-            if (number <= line_number)
+            if (number <= line_number && number > 0)
                 return number;
             else { // Marking that entered line does not matches the format or greater than all existing lines in the table
                 flag = true;
