@@ -240,8 +240,6 @@ bool timeCheck(char time[]) { // Function that check a time for matching time's 
         return false;
 }
 
-
-
 void changeLine(Concert *table) { // Function that changes a line
     char action;
     char name[NAMES_LENGTH];
@@ -400,6 +398,13 @@ void emptyLine(Concert *table, unsigned short line) { // Function that replaces 
     table->time[TIMES_LENGTH - 1] = '\0';
 }
 
+void swapTables(Concert *table1, Concert *table2) {
+    Concert copy;
+    copy = *table1;
+    *table1 = *table2;
+    *table2 = copy;
+}
+
 void saveTable(Concert table[], unsigned short line_number, char files_name[]) { // Function that rewrites a table to a document
     FILE* file;
     file = fopen(files_name, "w");
@@ -412,11 +417,14 @@ void saveTable(Concert table[], unsigned short line_number, char files_name[]) {
     press_clearScreen();
 }
 
-void swapTables(Concert *table1, Concert *table2) {
-    Concert copy;
-    copy = *table1;
-    *table1 = *table2;
-    *table2 = copy;
+void clearTable(unsigned short *line_number, Concert *table[]) {
+    for (int i  = 0; i < *line_number; ++i) {
+        clearLine(&table[i]);     // Deleting data from different lines separately
+    }
+    *line_number = 0; // Changing a number of lines to zero
+    clearScreen();
+    printf("Your table is successfully cleared - all information is deleted.\n");
+    press_clearScreen();
 }
 
 int main()
@@ -532,13 +540,7 @@ int main()
                     break;
                 case '4':
                     // Deleting all data from the table
-                    for (int i  = 0; i < line_number; ++i) {
-                        clearLine(&table[i]);     // Deleting data from different lines separately
-                    }
-                    line_number = 0; // Changing a number of lines to zero
-                    clearScreen();
-                    printf("Your table is successfully cleared - all information is deleted.\n");
-                    press_clearScreen();
+                    clearTable(&line_number, &table);
                     break;
                 case '5':
                     // Saving a changed table
