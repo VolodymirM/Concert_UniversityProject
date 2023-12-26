@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <conio.h>
+#include <math.h>
 #define NAMES_LENGTH 26
 #define DATES_LENGTH 11
 #define TIMES_LENGTH 9
@@ -16,15 +18,6 @@ typedef struct Concert {
     double index;
 } Concert;
 
-void menuOutput() { // Function that displays information about the program an main menu
-    clearScreen();
-    printf("This program allows to store and edit binary (.bin) file with data about upcoming bands' concerts.\n\n");
-    printf("Storage's format:\n");
-    printf("Band's name - City where the concert is about to be - Date of the concert - Time when the concert is about to start\n\n");
-    printf("[1] Start\n");
-    printf("[2] Quit\n");
-}
-
 void press_clearScreen() { // Function that asks user to press any button to clear a terminal
     printf("\nPress any key to continue.\n");
     getch();
@@ -33,6 +26,15 @@ void press_clearScreen() { // Function that asks user to press any button to cle
 
 void clearScreen() { // Function that clears a terminal
     system("cls");
+}
+
+void menuOutput() { // Function that displays information about the program an main menu
+    clearScreen();
+    printf("This program allows to store and edit binary (.bin) file with data about upcoming bands' concerts.\n\n");
+    printf("Storage's format:\n");
+    printf("Band's name - City where the concert is about to be - Date of the concert - Time when the concert is about to start\n\n");
+    printf("[1] Start\n");
+    printf("[2] Quit\n");
 }
 
 void filenameCheck(bool flag, char *name) { // Function that allows user to input a file's name and check it for match a ".bin" format
