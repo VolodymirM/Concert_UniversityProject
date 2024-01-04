@@ -407,6 +407,65 @@ void swapTables(Concert *table1, Concert *table2) {
     *table2 = copy;
 }
 
+void readTable(char files_name[], Concert table[], unsigned short *line_number) {
+    FILE* fp;
+    fp = fopen(files_name, "r+");
+    fileCheck(fp, files_name);
+    for (int i = 0; i < MAX_LINES; ++i) {
+        char string[4 + 2 * NAMES_LENGTH + DATES_LENGTH + TIMES_LENGTH];
+        memset(string, 0, strlen(string));
+        fgets(string, 4 + 2 * NAMES_LENGTH + DATES_LENGTH + TIMES_LENGTH, fp);
+        if (string[0] == '\0') {
+            break;
+        }
+        else {
+            if (i % 2 == 0){
+            readLine(&table[*line_number], string, *line_number + 1); // Reading each line from the file
+            countIndex(&table[*line_number]); // Counting an index of each line
+            ++(*line_number);
+            }
+        }
+    }
+    fclose(fp);
+}
+
+void addLine(unsigned short *line_number, Concert table[], unsigned short line) {
+    if (!(*line_number < MAX_LINES - 1))
+        fullTable(table, *line_number);
+    else {
+        ++(*line_number);
+        line = *line_number;
+        emptyLine(&table[line - 1], line);
+        changeLine(&table[line - 1]);
+        countIndex(&table[line - 1]);
+        for (int i = 0; i < *line_number; ++i) {
+            for (int t = 0; t < *line_number - 1; ++t) {
+                if (table[t].index > table[t + 1].index) {
+                    Concert copy;
+                    copy = table[t];
+                    table[t] = table[t + 1];
+                    table[t + 1] = copy;
+                    table[t].line_number = t + 1;
+                    table[t + 1].line_number = t + 2;
+                }
+            }
+        }
+        clearScreen();
+        printf("The line is successfully added.\n");
+        press_clearScreen();                    
+    }
+}
+
+void clearTable(unsigned short *line_number, Concert table[]) {
+    for (int i  = 0; i < *line_number; ++i) {
+        clearLine(&table[i]);     // Deleting data from different lines separately
+    }
+    *line_number = 0; // Changing a number of lines to zero
+    clearScreen();
+    printf("Your table is successfully cleared - all information is deleted.\n");
+    press_clearScreen();
+}
+
 void saveTable(Concert table[], unsigned short line_number, char files_name[]) { // Function that rewrites a table to a document
     FILE* file;
     file = fopen(files_name, "w");
@@ -416,16 +475,6 @@ void saveTable(Concert table[], unsigned short line_number, char files_name[]) {
     fclose(file);
     clearScreen();
     printf("Your table is successfully saved into \"%s\".\n", files_name);
-    press_clearScreen();
-}
-
-void clearTable(unsigned short *line_number, Concert *table[]) {
-    for (int i  = 0; i < *line_number; ++i) {
-        clearLine(&table[i]);     // Deleting data from different lines separately
-    }
-    *line_number = 0; // Changing a number of lines to zero
-    clearScreen();
-    printf("Your table is successfully cleared - all information is deleted.\n");
     press_clearScreen();
 }
 
@@ -447,25 +496,7 @@ int main()
             Concert table[MAX_LINES];
             unsigned short line_number = 0;
             // Reading a table from a file
-            FILE* file;
-            file = fopen(files_name, "r+");
-            fileCheck(file, files_name);
-            for (int i = 0; i < MAX_LINES; ++i) {
-                char string[4 + 2 * NAMES_LENGTH + DATES_LENGTH + TIMES_LENGTH];
-                memset(string, 0, strlen(string));
-                fgets(string, 4 + 2 * NAMES_LENGTH + DATES_LENGTH + TIMES_LENGTH, file);
-                if (string[0] == '\0') {
-                    break;
-                }
-                else {
-                    if (i % 2 == 0){
-                    readLine(&table[line_number], string, line_number + 1); // Reading each line from the file
-                    countIndex(&table[line_number]); // Counting an index of each line
-                    ++line_number;
-                    }
-                }
-            }
-            fclose(file);
+            readTable(files_name, table, &line_number);
             while (1) {
                 // Outputting the data and asking user an action to do with it
                 action = makeAction(table, line_number);
@@ -474,33 +505,11 @@ int main()
                 switch (action)
                 {
                 case '1':
-                    // Adding a new line to the table
-                    if (!(line_number < MAX_LINES - 1))
-                        fullTable(table, line_number);
-                    else {
-                        line_number++;
-                        line = line_number;
-                        emptyLine(&table[line - 1], line);
-                        changeLine(&table[line - 1]);
-                        countIndex(&table[line - 1]);
-                        for (int i = 0; i < line_number; ++i) {
-                            for (int t = 0; t < line_number - 1; ++t) {
-                                if (table[t].index > table[t + 1].index) {
-                                    Concert copy;
-                                    copy = table[t];
-                                    table[t] = table[t + 1];
-                                    table[t + 1] = copy;
-                                    table[t].line_number = t + 1;
-                                    table[t + 1].line_number = t + 2;
-                                }
-                            }
-                        }
-                        clearScreen();
-                        printf("The line is successfully added.\n");
-                        press_clearScreen();                    }
+                    // Adding a new line to a table
+                    addLine(&line_number, table, line);
                     break;
                 case '2':
-                    // Changing a line if the table
+                    // Changing a line of a table
                     if (line_number != 0) {
                         line_numScan(&line, table, line_number, action);
                         changeLine(&table[line - 1]);
@@ -522,7 +531,7 @@ int main()
                     }
                     break;
                 case '3':
-                    // Deleting a line from the table
+                    // Deleting a line from a table
                     if (line_number != 0) { // Checking if there are any lines in the table
                         line_numScan(&line, table, line_number, action); // User inputs a number of the line that has to be changed
                         for (int i = line - 1; i < line_number - 1; ++i) {  // Repalcing all lines that come after the one that user entered
@@ -541,15 +550,15 @@ int main()
                     }
                     break;
                 case '4':
-                    // Deleting all data from the table
-                    clearTable(&line_number, &table);
+                    // Deleting all data from a table
+                    clearTable(&line_number, table);
                     break;
                 case '5':
                     // Saving a changed table
                     saveTable(table, line_number, files_name);
                     break;
                 }
-                // Escaping the menu
+                // Escaping a menu
                 if (action == '6')
                     break;
             }
@@ -561,5 +570,4 @@ int main()
 
         }
     }
-    return 0;
 }
