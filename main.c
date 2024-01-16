@@ -37,33 +37,34 @@ void menuOutput() { // Function that displays information about the program an m
     printf("[2] Quit\n");
 }
 
-void filenameCheck(bool flag, char *name) { // Function that allows user to input a file's name and check it for match a ".bin" format
+void filenameCheck(char *name) { // Function that allows user to input a file's name and check it for match a ".bin" format
     clearScreen();
     char files_name[NAMES_LENGTH];
-        while (flag) {
-            memset(files_name, 0, strlen(files_name));
-            // Outputting a menu
-            printf("Enter binary file's (.bin) name where it is expected to store data (up to %d symbols).\n", NAMES_LENGTH - 1);
-            printf("The file will be opened, if it exists in the program's folder, or created, if it is not.\n");
-            printf("\nFile's name: ");
-            scanf("%s", files_name);
-            // Checking the entered file name to be a .bin file
-            for (int i = 4; i <= NAMES_LENGTH - 1; ++i){
-                if (files_name[i] == '\0' && files_name[i - 1] == 'n' && files_name[i - 2] == 'i' && files_name[i - 3] == 'b' && files_name[i - 4] == '.') {
-                    flag = 0;
-                    break;
-                }
-            }
-            if (files_name[NAMES_LENGTH - 1] != 0 || files_name[NAMES_LENGTH - 1] != '\0')
-                flag = 1;
-            if (flag == 0){
-                clearScreen();
+    bool flag = true;
+    while (flag) {
+        memset(files_name, 0, strlen(files_name));
+        // Outputting a menu
+        printf("Enter binary file's (.bin) name where it is expected to store data (up to %d symbols).\n", NAMES_LENGTH - 1);
+        printf("The file will be opened, if it exists in the program's folder, or created, if it is not.\n");
+        printf("\nFile's name: ");
+        scanf("%s", files_name);
+        // Checking the entered file name to be a .bin file
+        for (int i = 4; i <= NAMES_LENGTH - 1; ++i){
+            if (files_name[i] == '\0' && files_name[i - 1] == 'n' && files_name[i - 2] == 'i' && files_name[i - 3] == 'b' && files_name[i - 4] == '.') {
+                 flag = 0;
                 break;
             }
-            // User inputs the file name one more time if it is not a .bin file
-            printf("\n!ERROR! The file name must end with \".bin\" (maybe it there is more of %d symbols). Please, enter the file name again.\n", NAMES_LENGTH - 1);
-            press_clearScreen();
         }
+        if (files_name[NAMES_LENGTH - 1] != 0 || files_name[NAMES_LENGTH - 1] != '\0')
+            flag = 1;
+        if (flag == 0){
+            clearScreen();
+            break;
+         }
+        // User inputs the file name one more time if it is not a .bin file
+        printf("\n!ERROR! The file name must end with \".bin\" (maybe it there is more of %d symbols). Please, enter the file name again.\n", NAMES_LENGTH - 1);
+        press_clearScreen();
+    }
     strcpy(name, files_name); // Copying users entered filename to a given string
 }
 
@@ -531,13 +532,12 @@ int main()
     while (1) {
         // Outputting main information about the program
         menuOutput();
-        bool flag = 1;
         action = getch();
         // User enters name of the file where all the data is about to store
         switch (action)
         {
             case '1': // Running the program
-            filenameCheck(flag, files_name);
+            filenameCheck(files_name);
             // Opening/creating a file where data is about to store
             Concert table[MAX_LINES];
             unsigned short line_number = 0;
