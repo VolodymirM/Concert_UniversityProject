@@ -70,7 +70,7 @@ void filenameCheck(bool flag, char *name) { // Function that allows user to inpu
 void fileCheck(FILE* file, char files_name[]) {
     if (file == NULL) {
         printf("There was no \"%s\" file in program's folder.\n", files_name);
-        file = fopen(files_name, "w+");
+        file = fopen(files_name, "wb+");
         printf("\nFile \"%s\" is successfully created.\n", files_name);
         press_clearScreen();
     }
@@ -242,7 +242,7 @@ bool timeCheck(char time[]) { // Function that check a time for matching time's 
         return false;
 }
 
-void changeLine(Concert *table) { // Function that changes a line
+void changeLines_data(Concert *table) { // Function that changes a line
     char action;
     char name[NAMES_LENGTH];
     char date[DATES_LENGTH] = "0000-00-00";
@@ -405,11 +405,14 @@ void swapTables(Concert *table1, Concert *table2) {
     copy = *table1;
     *table1 = *table2;
     *table2 = copy;
+    unsigned short line_numberCopy = table1->line_number;
+    table1->line_number = table2->line_number;
+    table2->line_number = line_numberCopy;
 }
 
 void readTable(char files_name[], Concert table[], unsigned short *line_number) {
     FILE* fp;
-    fp = fopen(files_name, "r+");
+    fp = fopen(files_name, "rb+");
     fileCheck(fp, files_name);
     for (int i = 0; i < MAX_LINES; ++i) {
         char string[4 + 2 * NAMES_LENGTH + DATES_LENGTH + TIMES_LENGTH];
@@ -429,14 +432,15 @@ void readTable(char files_name[], Concert table[], unsigned short *line_number) 
     fclose(fp);
 }
 
-void addLine(unsigned short *line_number, Concert table[], unsigned short line) {
+void addLine(unsigned short *line_number, Concert table[]) {
+    unsigned short line;
     if (!(*line_number < MAX_LINES - 1))
         fullTable(table, *line_number);
     else {
         ++(*line_number);
         line = *line_number;
         emptyLine(&table[line - 1], line);
-        changeLine(&table[line - 1]);
+        changeLines_data(&table[line - 1]);
         countIndex(&table[line - 1]);
         for (int i = 0; i < *line_number; ++i) {
             for (int t = 0; t < *line_number - 1; ++t) {
@@ -456,6 +460,48 @@ void addLine(unsigned short *line_number, Concert table[], unsigned short line) 
     }
 }
 
+void changeLine(unsigned short *line_number, Concert table[], char action) {
+    unsigned short line;
+    if (*line_number != 0) {
+    line_numScan(&line, table, *line_number, action);
+    changeLines_data(&table[line - 1]);
+    countIndex(&table[line - 1]);
+    for (int i = 0; i < *line_number; ++i) {
+        for (int t = 0; t < *line_number - 1; ++t) {
+            if (table[t].index > table[t + 1].index)
+                swapTables(&table[t], &table[t + 1]);
+        }
+    }
+    clearScreen();
+    printf("The line is successfully changed.\n");
+    press_clearScreen();
+    }
+    else {
+        printf("!ERROR! There is no such line in the table to change.\n");
+        press_clearScreen();
+    }
+}
+
+void deleteLine(unsigned short *line_number, Concert table[], char action) {
+    unsigned short line;
+    if (line_number != 0) { // Checking if there are any lines in the table
+        line_numScan(&line, table, *line_number, action); // User inputs a number of the line that has to be changed
+        for (int i = line - 1; i < *line_number - 1; ++i) {  // Repalcing all lines that come after the one that user entered
+            table[i] = table[i + 1];
+            --table[i].line_number;
+        }
+        clearLine(&table[*line_number - 1]); // Creating an empty line
+        --(*line_number);
+        clearScreen();
+        printf("The line is successfully deleted.\n");
+        press_clearScreen();
+    }
+    else {
+        printf("!ERROR! There is no line in the table to delete.\n");
+        press_clearScreen();
+    }
+}
+
 void clearTable(unsigned short *line_number, Concert table[]) {
     for (int i  = 0; i < *line_number; ++i) {
         clearLine(&table[i]);     // Deleting data from different lines separately
@@ -468,7 +514,7 @@ void clearTable(unsigned short *line_number, Concert table[]) {
 
 void saveTable(Concert table[], unsigned short line_number, char files_name[]) { // Function that rewrites a table to a document
     FILE* file;
-    file = fopen(files_name, "w");
+    file = fopen(files_name, "wb");
     for (int i = 0; i < line_number; ++i) {
         fprintf(file, "%3d%s%s%s%s\n", table[i].line_number, table[i].band, table[i].city, table[i].date, table[i].time);
     }
@@ -501,53 +547,19 @@ int main()
                 // Outputting the data and asking user an action to do with it
                 action = makeAction(table, line_number);
                 // Running user's entered action
-                unsigned short line;
                 switch (action)
                 {
                 case '1':
                     // Adding a new line to a table
-                    addLine(&line_number, table, line);
+                    addLine(&line_number, table);
                     break;
                 case '2':
                     // Changing a line of a table
-                    if (line_number != 0) {
-                        line_numScan(&line, table, line_number, action);
-                        changeLine(&table[line - 1]);
-                        countIndex(&table[line - 1]);
-                        for (int i = 0; i < line_number; ++i) {
-                            for (int t = 0; t < line_number - 1; ++t) {
-                                if (table[t].index > table[t + 1].index) {
-                                    swapTables(&table[t], &table[t + 1]);
-                                }
-                            }
-                        }
-                        clearScreen();
-                        printf("The line is successfully changed.\n");
-                        press_clearScreen();
-                    }
-                    else {
-                        printf("!ERROR! There is no line in the table to change.\n");
-                        press_clearScreen();
-                    }
+                    changeLine(&line_number, table, action);
                     break;
                 case '3':
                     // Deleting a line from a table
-                    if (line_number != 0) { // Checking if there are any lines in the table
-                        line_numScan(&line, table, line_number, action); // User inputs a number of the line that has to be changed
-                        for (int i = line - 1; i < line_number - 1; ++i) {  // Repalcing all lines that come after the one that user entered
-                            table[i] = table[i + 1];
-                            --table[i].line_number;
-                        }
-                         clearLine(&table[line_number - 1]); // Creating an empty line
-                        --line_number;
-                        clearScreen();
-                        printf("The line is successfully deleted.\n");
-                        press_clearScreen();
-                    }
-                    else {
-                        printf("!ERROR! There is no line in the table to delete.\n");
-                        press_clearScreen();
-                    }
+                    deleteLine(&line_number, table, action);
                     break;
                 case '4':
                     // Deleting all data from a table
