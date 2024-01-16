@@ -579,7 +579,6 @@ int main()
                 // Quiting programs run
                 return 0;
                 break;
-
         }
     }
 }
