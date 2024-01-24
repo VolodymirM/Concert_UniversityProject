@@ -39,7 +39,7 @@ void menuOutput() { // Function that displays information about the program an m
 
 void filenameCheck(char *name) { // Function that allows user to input a file's name and check it for match a ".bin" format
     clearScreen();
-    char files_name[NAMES_LENGTH];
+    char files_name[100] = {};
     bool flag = true;
     while (flag) {
         memset(files_name, 0, strlen(files_name));
@@ -245,10 +245,10 @@ bool timeCheck(char time[]) { // Function that check a time for matching time's 
 
 void changeLines_data(Concert *table) { // Function that changes a line
     char action;
-    char name[NAMES_LENGTH];
-    char date[DATES_LENGTH] = "0000-00-00";
-    char time[TIMES_LENGTH] = "00:00:00";
-    memset(name, 0, strlen(name));
+    char name[100] = {};
+    char date[100] = "0000-00-00";
+    char time[100] = "00:00:00";
+    //memset(name, 0, strlen(name));
     name[NAMES_LENGTH - 1] = '\0';
     while (1) {
         // Outputting a menu of available line's elements to change
