@@ -26,30 +26,6 @@ void printTable(Concert table[], unsigned short line_number) { // Function that 
     }
 }
 
-void printTable_Menu(Concert table[], unsigned short line_number, bool filtering_indicator, bool sorting_indicator) { // Function that displays whole table
-    if (line_number == 0) {
-        filtering_indicator = false;
-        sorting_indicator = false;
-    }
-    printf("\t\t\t");
-    if (filtering_indicator == false)
-        printf("[F]Filters: OFF\t\t");
-    else
-        printf("[F]Filters: ON\t\t");
-    if (sorting_indicator == false)
-        printf("[S]Sort: OFF\n");
-    else
-        printf("[S]Sort: ON\n");
-    printf("Your table:\n\n");
-    if (line_number == 0)
-        printf("\t!EMPTY!\n");
-    else {
-        for (int i = 0; i < line_number; ++i) {
-            printf("%3d%s%s%s%s\n", table[i].line_number, table[i].band, table[i].city, table[i].date, table[i].time);
-        }
-    }
-}
-
 void outputActions() { // Function that outputs all available actions to do with the table
         printf("\nPress a key for action:\n");
         printf("\t[1] Add a new line(The line will be chosen automatically according to concert's date and start time)\n");
@@ -61,14 +37,14 @@ void outputActions() { // Function that outputs all available actions to do with
         printf("\n!DO NOT FORGET TO SAVE CHANGES BEFORE LEAVING THIS PAGE. OTHERWISE YOUR TABLE WILL NOT BE CHANGED!\n");
 }
 
-char makeAction(Concert table[], unsigned short line_number, bool filtering_indicator, bool sorting_indicator) { // User inputs an action to make with the table
+char makeAction(Concert table[], unsigned short line_number) { // User inputs an action to make with the table
     char action;
     while (1) {
-        printTable_Menu(table, line_number, filtering_indicator, sorting_indicator);
+        printTable(table, line_number);
         outputActions();
         action = getch();
         clearScreen();
-        if (action == '1' || action == '2' || action == '3' || action == '4' || action == '5' || action == '6' || action == 'f' || action == 's') 
+        if (action == '1' || action == '2' || action == '3' || action == '4' || action == '5' || action == '6')
             return action;
     }
 }
@@ -426,12 +402,11 @@ int main()
             // Opening/creating a file where data is about to store
             Concert table[MAX_LINES];
             unsigned short line_number = 0;
-            bool filtering_indicator = false, sorting_indicator = false;
             // Reading a table from a file
             readTable(files_name, table, &line_number);
             while (1) {
                 // Outputting the data and asking user an action to do with it
-                action = makeAction(table, line_number, filtering_indicator, sorting_indicator);
+                action = makeAction(table, line_number);
                 // Running user's entered action
                 switch (action)
                 {
@@ -454,24 +429,6 @@ int main()
                 case '5':
                     // Saving a changed table
                     saveTable(table, line_number, files_name);
-                    break;
-                case 'f':
-                    // Enabling/disabling filters
-                    if (filtering_indicator == false && line_number != 0) {
-                        filtering_indicator = true;
-                    }
-                    else {
-                        filtering_indicator = false;
-                    }
-                    break;
-                case 's':
-                    // Enabling/disabling sorting
-                    if (sorting_indicator == false && line_number != 0) {
-                        sorting_indicator = true;
-                    }
-                    else {
-                        sorting_indicator = false;
-                    }
                     break;
                 }
                 // Escaping a menu
